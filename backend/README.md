@@ -2,16 +2,17 @@
 
 ## Desplegar en Render
 
-El backend se puede ejecutar como servicio Docker en Render y conectarse a una instancia MySQL externa. Render no ofrece MySQL administrado. Una opción compatible con MySQL que incluye cuota gratuita es [TiDB Cloud Starter](https://docs.pingcap.com/tidbcloud/select-cluster-tier/#starter); su cuota gratuita está limitada por organización y por uso, y el proveedor puede restringir conexiones al agotarla. Revisa sus [límites y cuotas](https://www.pingcap.com/tidb-cloud-starter-pricing-details/) antes de crear la instancia.
+El backend se puede ejecutar como servicio Docker en Render y conectarse a una instancia MySQL externa. Render no ofrece MySQL administrado. Una opción compatible con MySQL es [TiDB Cloud Starter](https://docs.pingcap.com/tidbcloud/select-cluster-tier/#starter), que no requiere tarjeta si mantienes el gasto en cero. La cuota gratuita incluye 5 GiB de almacenamiento por filas y 50 millones de unidades de solicitud al mes; al agotarla, las conexiones nuevas se restringen hasta el siguiente mes. Revisa sus [límites y cuotas](https://www.pingcap.com/tidb-cloud-starter-pricing-details/) antes de crear la instancia.
 
 1. Sube el proyecto a un repositorio de GitHub y crea en Render un **Web Service** conectado a ese repositorio.
 2. Selecciona **Docker** como entorno y establece `backend` como directorio raíz. Render utilizará el [`Dockerfile`](./Dockerfile).
-3. En TiDB Cloud crea una instancia **Starter** con compatibilidad **MySQL** y uso máximo gratuito. Exporta la base local `iud_peliculas_db_ea1` desde phpMyAdmin e impórtala en TiDB con el cliente MySQL; usa los datos de conexión **Public** que muestra TiDB. La conexión pública requiere TLS.
+3. En TiDB Cloud crea una instancia **Starter** con compatibilidad **MySQL** y gasto máximo de `0`. Exporta la base local `iud_peliculas_db_ea1` desde phpMyAdmin e impórtala en TiDB con el cliente MySQL; usa los datos de conexión **Public** que muestra TiDB. La conexión pública requiere TLS.
 4. En **Environment**, configura `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS` con los datos de TiDB. Para TiDB Starter, el puerto suele ser `4000` y el usuario incluye el prefijo de instancia. `DB_SSL_CA` se establece en el blueprint a `/etc/ssl/certs/ca-certificates.crt`; la imagen instala el almacén de certificados y PDO verifica el certificado del servidor.
 5. Después de desplegar el frontend, configura `FRONTEND_ORIGIN` con su URL completa, por ejemplo `https://mi-frontend.onrender.com` (sin `/` al final).
 6. Comprueba el servicio en `/health`; los endpoints estarán bajo `/api`, por ejemplo `/api/medias`.
 
 El servicio escucha el puerto asignado por Render. La configuración CORS solo permite el origen indicado en `FRONTEND_ORIGIN`.
+TiDB también requiere autorizar las IP de cliente. Después de crear el servicio API, copia todos los rangos de **Connect → Outbound** en Render y añádelos a la lista de acceso del endpoint público de TiDB.
 
 ## Conexión a MySQL
 
