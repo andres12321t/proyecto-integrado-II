@@ -2,13 +2,14 @@
 
 ## Desplegar en Render
 
-El backend se puede ejecutar como servicio Docker en Render y conectarse a una instancia MySQL externa. Render no ofrece MySQL administrado; crea la base en un proveedor MySQL que permita conexiones desde Render y carga allí el esquema y los datos del proyecto.
+El backend se puede ejecutar como servicio Docker en Render y conectarse a una instancia MySQL externa. Render no ofrece MySQL administrado. Una opción compatible con MySQL que incluye cuota gratuita es [TiDB Cloud Starter](https://docs.pingcap.com/tidbcloud/select-cluster-tier/#starter); su cuota gratuita está limitada por organización y por uso, y el proveedor puede restringir conexiones al agotarla. Revisa sus [límites y cuotas](https://www.pingcap.com/tidb-cloud-starter-pricing-details/) antes de crear la instancia.
 
 1. Sube el proyecto a un repositorio de GitHub y crea en Render un **Web Service** conectado a ese repositorio.
 2. Selecciona **Docker** como entorno y establece `backend` como directorio raíz. Render utilizará el [`Dockerfile`](./Dockerfile).
-3. En **Environment**, configura `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS` con los datos de tu proveedor. No guardes estos valores en el repositorio.
-4. Después de desplegar el frontend, configura `FRONTEND_ORIGIN` con su URL completa, por ejemplo `https://mi-frontend.onrender.com` (sin `/` al final).
-5. Comprueba el servicio en `/health`; los endpoints estarán bajo `/api`, por ejemplo `/api/medias`.
+3. En TiDB Cloud crea una instancia **Starter** con compatibilidad **MySQL** y uso máximo gratuito. Exporta la base local `iud_peliculas_db_ea1` desde phpMyAdmin e impórtala en TiDB con el cliente MySQL; usa los datos de conexión **Public** que muestra TiDB. La conexión pública requiere TLS.
+4. En **Environment**, configura `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS` con los datos de TiDB. Para TiDB Starter, el puerto suele ser `4000` y el usuario incluye el prefijo de instancia. `DB_SSL_CA` se establece en el blueprint a `/etc/ssl/certs/ca-certificates.crt`; la imagen instala el almacén de certificados y PDO verifica el certificado del servidor.
+5. Después de desplegar el frontend, configura `FRONTEND_ORIGIN` con su URL completa, por ejemplo `https://mi-frontend.onrender.com` (sin `/` al final).
+6. Comprueba el servicio en `/health`; los endpoints estarán bajo `/api`, por ejemplo `/api/medias`.
 
 El servicio escucha el puerto asignado por Render. La configuración CORS solo permite el origen indicado en `FRONTEND_ORIGIN`.
 
@@ -23,6 +24,7 @@ La conexión está implementada con PDO en `config/database.php`. La base de dat
 | `DB_NAME` | `iud_peliculas_db_ea1` |
 | `DB_USER` | `root` |
 | `DB_PASS` | Vacío |
+| `DB_SSL_CA` | Sin configurar; establece la ruta al certificado CA si el proveedor exige validar TLS |
 
 El usuario y contraseña predeterminados corresponden a una instalación local común de XAMPP. Si tu servidor usa otros datos, configura las variables de entorno antes de ejecutar PHP. No guardes contraseñas reales en el código ni las compartas en el chat.
 
