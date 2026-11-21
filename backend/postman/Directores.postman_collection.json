@@ -1,0 +1,218 @@
+{
+  "info": {
+    "_postman_id": "48e4c3bf-d802-4aac-8bc3-40d920d7e913",
+    "name": "API REST - Directores",
+    "description": "Solicitudes CRUD para /api/directores. Ejecuta las solicitudes en orden. DELETE elimina permanentemente el director de prueba.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Listar directores",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/directores"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200 y lista en data', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().data).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Crear director de prueba",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('test_nombres', 'Postman ' + Date.now().toString() + Math.floor(Math.random() * 10000).toString());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201 y guarda el ID', function () {",
+              "    pm.response.to.have.status(201);",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data.id).to.exist;",
+              "    pm.expect(data.nombres).to.eql(pm.collectionVariables.get('test_nombres'));",
+              "    pm.collectionVariables.set('director_id', data.id);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombres\": \"{{test_nombres}}\",\n  \"estado\": \"Activo\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/directores"
+      }
+    },
+    {
+      "name": "3. Consultar director por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/directores/{{director_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200 y devuelve el ID solicitado', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().data.id.toString()).to.eql(pm.collectionVariables.get('director_id').toString());",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Reemplazar director (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombres\": \"{{test_nombres}} actualizado\",\n  \"estado\": \"Inactivo\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/directores/{{director_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200 y reemplaza los campos', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data.estado).to.eql('Inactivo');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Actualizar estado (PATCH)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"Activo\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/directores/{{director_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200 y conserva el nombre', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data.estado).to.eql('Activo');",
+              "    pm.expect(data.nombres).to.eql(pm.collectionVariables.get('test_nombres') + ' actualizado');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Eliminar director de prueba",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/api/directores/{{director_id}}",
+        "description": "Elimina permanentemente el director de prueba creado con esta colección."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 204 sin contenido', function () {",
+              "    pm.response.to.have.status(204);",
+              "    pm.expect(pm.response.text()).to.eql('');",
+              "});",
+              "pm.collectionVariables.unset('director_id');"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "director_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_nombres",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

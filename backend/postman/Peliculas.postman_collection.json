@@ -1,0 +1,240 @@
+{
+  "info": {
+    "_postman_id": "64a47116-6670-47fe-9d89-290c67d8e657",
+    "name": "API REST - Películas",
+    "description": "Solicitudes CRUD para la API local de películas. Ejecuta POST Crear antes de las solicitudes que usan {{media_id}}. DELETE elimina permanentemente el registro de prueba.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Listar películas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/medias",
+        "description": "Lista todas las películas y series registradas."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Incluye una lista en data', function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.data).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Crear película de prueba",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now().toString() + Math.floor(Math.random() * 10000).toString();",
+              "pm.collectionVariables.set('test_serial', 'POSTMAN-' + suffix);",
+              "pm.collectionVariables.set('test_url', 'https://example.com/postman-' + suffix);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde HTTP 201', function () { pm.response.to.have.status(201); });",
+              "const body = pm.response.json();",
+              "if (body.data && body.data.id) {",
+              "    pm.collectionVariables.set('media_id', body.data.id);",
+              "}",
+              "pm.test('Devuelve el registro creado y su identificador', function () {",
+              "    pm.expect(body.data).to.be.an('object');",
+              "    pm.expect(body.data.id).to.exist;",
+              "    pm.expect(body.data.serial).to.eql(pm.collectionVariables.get('test_serial'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"serial\": \"{{test_serial}}\",\n  \"titulo\": \"Película de prueba Postman\",\n  \"sinopsis\": \"Registro de ejemplo creado desde la colección de Postman.\",\n  \"url_pelicula\": \"{{test_url}}\",\n  \"imagen_portada\": \"https://example.com/postman-portada.jpg\",\n  \"ano_estreno\": 2024,\n  \"genero_id\": 1,\n  \"director_id\": 1,\n  \"productora_id\": 1,\n  \"tipo_id\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/medias",
+        "description": "Crea un registro de prueba con identificadores de catálogo existentes. Guarda automáticamente media_id para las demás solicitudes."
+      }
+    },
+    {
+      "name": "3. Consultar película creada",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/medias/{{media_id}}",
+        "description": "Ejecuta primero \"2. Crear película de prueba\" para definir media_id."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Devuelve las relaciones del registro', function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.data.id.toString()).to.eql(pm.collectionVariables.get('media_id').toString());",
+              "    pm.expect(body.data).to.have.property('genero');",
+              "    pm.expect(body.data).to.have.property('director');",
+              "    pm.expect(body.data).to.have.property('productora');",
+              "    pm.expect(body.data).to.have.property('tipo');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Reemplazar película (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"serial\": \"{{test_serial}}\",\n  \"titulo\": \"Película actualizada desde Postman\",\n  \"sinopsis\": \"Registro actualizado con PUT desde la colección de Postman.\",\n  \"url_pelicula\": \"{{test_url}}\",\n  \"imagen_portada\": \"https://example.com/postman-portada.jpg\",\n  \"ano_estreno\": 2025,\n  \"genero_id\": 2,\n  \"director_id\": 1,\n  \"productora_id\": 1,\n  \"tipo_id\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/medias/{{media_id}}",
+        "description": "PUT reemplaza todos los campos editables; usa el registro creado en esta colección."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Reemplaza los campos solicitados', function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.data.titulo).to.eql('Película actualizada desde Postman');",
+              "    pm.expect(body.data.genero_id).to.eql(2);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Actualizar solo el título (PATCH)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"titulo\": \"Título actualizado con PATCH\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/medias/{{media_id}}",
+        "description": "PATCH modifica solo los campos incluidos en el cuerpo."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Actualiza el título y conserva los demás campos', function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.data.titulo).to.eql('Título actualizado con PATCH');",
+              "    pm.expect(body.data.ano_estreno).to.eql(2025);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Eliminar película de prueba",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/api/medias/{{media_id}}",
+        "description": "Elimina permanentemente el registro de prueba. Envíala solo si quieres borrar el registro creado con esta colección."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde HTTP 204 y no devuelve contenido', function () {",
+              "    pm.response.to.have.status(204);",
+              "    pm.expect(pm.response.text()).to.eql('');",
+              "});",
+              "pm.collectionVariables.unset('media_id');"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "media_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_serial",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_url",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

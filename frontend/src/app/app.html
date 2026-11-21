@@ -1,0 +1,38 @@
+<div class="admin-shell">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/">
+      <span class="brand-mark">C</span>
+      <span><strong>CineAdmin</strong><small>GESTIÓN DE CONTENIDO</small></span>
+    </a>
+
+    <div class="nav-caption">GENERAL</div>
+    <nav aria-label="Navegación principal">
+      <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="nav-icon">⌂</span> Resumen
+      </a>
+      <a class="nav-link" routerLink="/medias" routerLinkActive="active">
+        <span class="nav-icon">▶</span> Películas y series
+      </a>
+    </nav>
+
+    <div class="nav-caption catalog-caption">CATÁLOGOS</div>
+    <nav aria-label="Administración de catálogos">
+      @for (link of catalogLinks; track link.path) {
+        <a class="nav-link" [routerLink]="link.path" routerLinkActive="active">
+          <span class="nav-icon">{{ link.icon }}</span> {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer"><span class="online-dot"></span> API de gestión</div>
+  </aside>
+
+  <div class="main-column">
+    <header class="topbar">
+      <div class="breadcrumb">Administración <span>/</span> <strong>Biblioteca digital</strong></div>
+      <div class="admin-chip"><span class="admin-avatar">A</span><span>Administrador</span></div>
+    </header>
+    <main class="page-content"><router-outlet /></main>
+    <footer class="footer">Panel administrativo · Gestión de películas y series</footer>
+  </div>
+</div>

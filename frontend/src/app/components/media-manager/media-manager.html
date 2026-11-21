@@ -1,0 +1,167 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">ADMINISTRACIÓN · BIBLIOTECA</p>
+    <h1>Películas y series</h1>
+    <p class="muted">Gestiona producciones y sus datos de publicación.</p>
+  </div>
+  <span class="record-count">{{ medias().length }} producciones</span>
+</section>
+
+@if (error()) { <div class="alert alert-error">{{ error() }}</div> }
+@if (notice()) { <div class="alert alert-success">{{ notice() }}</div> }
+
+<section class="panel editor-panel">
+  <div class="panel-heading">
+    <div>
+      <p class="eyebrow">{{ selectedId() === null ? 'NUEVA PUBLICACIÓN' : 'EDITAR PUBLICACIÓN' }}</p>
+      <h2>{{ selectedId() === null ? 'Agregar producción' : 'Actualizar producción' }}</h2>
+    </div>
+    @if (selectedId() !== null) { <button class="button button-secondary" type="button" (click)="resetForm()">Cancelar edición</button> }
+  </div>
+
+  <form class="media-form" (submit)="save($event)">
+    <label class="form-field">
+      <span>Serial *</span>
+      <input required maxlength="50" [value]="draft().serial" (input)="setField('serial', $event)" />
+    </label>
+    <label class="form-field">
+      <span>Título *</span>
+      <input required maxlength="200" [value]="draft().titulo" (input)="setField('titulo', $event)" />
+    </label>
+    <label class="form-field field-wide">
+      <span>Sinopsis *</span>
+      <textarea required rows="3" [value]="draft().sinopsis" (input)="setField('sinopsis', $event)"></textarea>
+    </label>
+    <label class="form-field">
+      <span>URL del video *</span>
+      <input required type="url" maxlength="255" placeholder="https://…/pelicula.mp4" [value]="draft().url_pelicula" (input)="setField('url_pelicula', $event)" />
+      <small class="field-hint">Usa un enlace directo a un archivo MP4/WebM o un enlace de YouTube.</small>
+    </label>
+    <label class="form-field">
+      <span>URL de la portada *</span>
+      <input required type="url" maxlength="255" placeholder="https://…" [value]="draft().imagen_portada" (input)="setField('imagen_portada', $event)" />
+    </label>
+    <label class="form-field">
+      <span>Año de estreno *</span>
+      <input required type="number" min="1" max="2147483647" [value]="draft().ano_estreno" (input)="setField('ano_estreno', $event)" />
+    </label>
+    <label class="form-field">
+      <span>Tipo *</span>
+      <select required [value]="draft().tipo_id" (change)="setField('tipo_id', $event)">
+        <option value="">Selecciona un tipo</option>
+        @for (option of tipos(); track option.id) { <option [value]="option.id">{{ optionLabel(option) }}</option> }
+      </select>
+    </label>
+    <label class="form-field">
+      <span>Género principal *</span>
+      <select required [value]="draft().genero_id" (change)="setField('genero_id', $event)">
+        <option value="">Selecciona un género</option>
+        @for (option of generos(); track option.id) { <option [value]="option.id">{{ optionLabel(option) }}</option> }
+      </select>
+    </label>
+    <label class="form-field">
+      <span>Director principal *</span>
+      <select required [value]="draft().director_id" (change)="setField('director_id', $event)">
+        <option value="">Selecciona un director</option>
+        @for (option of directores(); track option.id) { <option [value]="option.id">{{ optionLabel(option) }}</option> }
+      </select>
+    </label>
+    <label class="form-field">
+      <span>Productora *</span>
+      <select required [value]="draft().productora_id" (change)="setField('productora_id', $event)">
+        <option value="">Selecciona una productora</option>
+        @for (option of productoras(); track option.id) { <option [value]="option.id">{{ optionLabel(option) }}</option> }
+      </select>
+    </label>
+    <div class="form-actions field-wide">
+      <button class="button button-primary" type="submit" [disabled]="saving() || loading()">
+        {{ saving() ? 'Guardando…' : selectedId() === null ? 'Agregar producción' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="panel list-panel">
+  <div class="panel-heading">
+    <div><p class="eyebrow">CATÁLOGO</p><h2>Producciones registradas</h2></div>
+    <button class="button button-secondary" type="button" (click)="loadAll()">Actualizar</button>
+  </div>
+  @if (loading()) {
+    <p class="empty-state">Cargando producciones…</p>
+  } @else if (medias().length === 0) {
+    <p class="empty-state">No hay producciones en el catálogo todavía.</p>
+  } @else {
+    <div class="media-grid">
+      @for (media of medias(); track media.id) {
+        <article class="media-card">
+          <img class="poster" [src]="media.imagen_portada" [alt]="'Portada de ' + media.titulo" loading="lazy" />
+          <div class="media-content">
+            <div class="media-title">
+              <div><span class="type-chip">{{ media.tipo }}</span><span class="year">{{ media.ano_estreno }}</span></div>
+              <h3>{{ media.titulo }}</h3>
+            </div>
+            <p class="synopsis">{{ media.sinopsis }}</p>
+            <dl>
+              <div><dt>Serial</dt><dd>{{ media.serial }}</dd></div>
+              <div><dt>Género</dt><dd>{{ media.genero }}</dd></div>
+              <div><dt>Director</dt><dd>{{ media.director }}</dd></div>
+              <div><dt>Productora</dt><dd>{{ media.productora }}</dd></div>
+            </dl>
+            <div class="card-actions">
+              <button class="icon-button watch-button" type="button" (click)="play(media)" [attr.aria-label]="'Ver ' + media.titulo">▶ Ver</button>
+              <button class="icon-button" type="button" (click)="edit(media)">Editar</button>
+              <button class="icon-button danger" type="button" (click)="remove(media)">Eliminar</button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>
+
+@if (selectedMedia(); as media) {
+  <div class="player-backdrop" (click)="closePlayer()" (keydown.escape)="closePlayer()">
+    <section class="player-dialog" role="dialog" aria-modal="true" [attr.aria-label]="'Reproduciendo ' + media.titulo" (click)="$event.stopPropagation()">
+      <header class="player-header">
+        <div>
+          <p class="eyebrow">REPRODUCIENDO {{ media.tipo | uppercase }}</p>
+          <h2>{{ media.titulo }}</h2>
+        </div>
+        <button class="close-button" type="button" aria-label="Cerrar reproductor" (click)="closePlayer()">×</button>
+      </header>
+      @if (playbackError()) {
+        <div class="player-error">
+          <p>{{ playbackError() }}</p>
+          <a [href]="playbackUrl()" target="_blank" rel="noopener noreferrer">Abrir video en una pestaña nueva ↗</a>
+        </div>
+      } @else if (youtubeEmbedUrl(); as embedUrl) {
+        <div class="video-container">
+          <iframe
+            class="video-frame"
+            [src]="embedUrl"
+            [title]="'Video: ' + media.titulo"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
+          <div class="player-fallback">
+            <span>Si YouTube muestra un error, puede que el video no permita reproducción incrustada.</span>
+            <a [href]="playbackUrl()" target="_blank" rel="noopener noreferrer">Abrir video en YouTube ↗</a>
+          </div>
+        </div>
+      } @else {
+        <video
+          class="video-frame"
+          [src]="playbackUrl()"
+          [poster]="media.imagen_portada"
+          controls
+          autoplay
+          playsinline
+          (error)="handlePlaybackError()"
+        >
+          Tu navegador no puede reproducir este formato de video.
+        </video>
+      }
+    </section>
+  </div>
+}

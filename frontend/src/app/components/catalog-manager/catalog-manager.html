@@ -1,0 +1,96 @@
+@if (definition(); as config) {
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">ADMINISTRACIÓN · CATÁLOGOS</p>
+      <h1>{{ config.title }}</h1>
+      <p class="muted">Crea, consulta, edita y elimina registros del catálogo.</p>
+    </div>
+    <span class="record-count">{{ records().length }} registros</span>
+  </section>
+
+  @if (error()) { <div class="alert alert-error">{{ error() }}</div> }
+  @if (notice()) { <div class="alert alert-success">{{ notice() }}</div> }
+
+  <div class="catalog-layout">
+    <section class="panel editor-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">{{ selectedId() === null ? 'NUEVO REGISTRO' : 'EDITAR REGISTRO' }}</p>
+          <h2>{{ selectedId() === null ? 'Agregar ' + config.singular : 'Actualizar ' + config.singular }}</h2>
+        </div>
+      </div>
+      <form (submit)="save($event)">
+        @for (field of config.fields; track field.key) {
+          <label class="form-field">
+            <span>{{ field.label }} @if (field.required) { <b>*</b> }</span>
+            @if (field.type === 'status') {
+              <select [value]="formValues()[field.key] ?? 'Activo'" (change)="setValue(field.key, $event)">
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+            } @else if (field.type === 'textarea') {
+              <textarea rows="3" [required]="field.required ?? false" [value]="formValues()[field.key] ?? ''" (input)="setValue(field.key, $event)"></textarea>
+            } @else {
+              <input type="text" [required]="field.required ?? false" [attr.maxlength]="field.maxLength ?? null" [value]="formValues()[field.key] ?? ''" (input)="setValue(field.key, $event)" />
+            }
+          </label>
+        }
+        <div class="form-actions">
+          <button class="button button-primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Guardando…' : selectedId() === null ? 'Crear registro' : 'Guardar cambios' }}
+          </button>
+          @if (selectedId() !== null) {
+            <button class="button button-secondary" type="button" (click)="resetForm()">Cancelar</button>
+          }
+        </div>
+      </form>
+    </section>
+
+    <section class="panel table-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">LISTADO</p>
+          <h2>Registros existentes</h2>
+        </div>
+        <button class="button button-secondary" type="button" (click)="loadRecords()">Actualizar</button>
+      </div>
+      @if (loading()) {
+        <p class="empty-state">Cargando registros…</p>
+      } @else if (records().length === 0) {
+        <p class="empty-state">Todavía no hay registros en este catálogo.</p>
+      } @else {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                @for (column of config.columns; track column.key) { <th>{{ column.label }}</th> }
+                <th class="actions-heading">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (record of records(); track record.id) {
+                <tr>
+                  @for (column of config.columns; track column.key) {
+                    <td>
+                      @if (column.key === 'estado') {
+                        <span class="status" [class.status-inactive]="record[column.key] === 'Inactivo'">{{ displayValue(record, column.key) }}</span>
+                      } @else {
+                        <span class="cell-text">{{ displayValue(record, column.key) }}</span>
+                      }
+                    </td>
+                  }
+                  <td class="row-actions">
+                    <button class="icon-button" type="button" (click)="edit(record)" [attr.aria-label]="'Editar registro ' + record.id">Editar</button>
+                    <button class="icon-button danger" type="button" (click)="remove(record)" [attr.aria-label]="'Eliminar registro ' + record.id">Eliminar</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+} @else if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}

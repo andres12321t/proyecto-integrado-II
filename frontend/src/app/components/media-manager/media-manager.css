@@ -1,0 +1,47 @@
+:host { display: block; }
+.page-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+h1, h2, h3, p { margin: 0; }
+h1 { margin-top: .35rem; font-size: clamp(1.7rem, 3vw, 2.35rem); letter-spacing: -.04em; }
+h2 { margin-top: .25rem; font-size: 1.05rem; }
+.eyebrow { color: #9a8cff; font-size: .68rem; font-weight: 800; letter-spacing: .15em; }
+.muted { margin-top: .45rem; color: #8e91a7; }
+.record-count { padding: .55rem .8rem; border: 1px solid #303146; border-radius: 99px; color: #c8bdff; background: #201e32; font-size: .78rem; }
+.panel { margin-bottom: 1rem; padding: 1.25rem; border: 1px solid #282a3a; border-radius: 1rem; background: #181a27; }
+.panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.media-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
+.field-wide { grid-column: 1 / -1; }
+.form-field { display: grid; gap: .45rem; margin: .55rem 0; color: #d8d8e3; font-size: .8rem; font-weight: 600; }
+.field-hint { color: #85879c; font-size: .68rem; font-weight: 400; }
+input, textarea, select { width: 100%; box-sizing: border-box; padding: .68rem .75rem; border: 1px solid #34364a; border-radius: .6rem; outline: none; color: #f4f3fa; background: #12131d; font: inherit; }
+input:focus, textarea:focus, select:focus { border-color: #8c7bff; box-shadow: 0 0 0 3px #7663ed28; }
+textarea { resize: vertical; }
+.form-actions, .card-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.form-actions { margin-top: .6rem; }
+.button { min-height: 2.4rem; padding: 0 .85rem; border: 0; border-radius: .6rem; cursor: pointer; font: inherit; font-size: .78rem; font-weight: 700; }
+.button:disabled { opacity: .6; cursor: wait; }
+.button-primary { color: #fff; background: #7663ed; }
+.button-secondary { border: 1px solid #34364a; color: #d0cede; background: #222432; }
+.alert { margin-bottom: 1rem; padding: .9rem 1rem; border-radius: .7rem; }
+.alert-error { color: #ffd1d3; border: 1px solid #793d49; background: #351f2a; }
+.alert-success { color: #b1eccb; border: 1px solid #346448; background: #1d3328; }
+.empty-state { padding: 1rem 0; color: #9698aa; font-size: .85rem; }
+.media-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.media-card { display: grid; grid-template-columns: 8rem minmax(0, 1fr); overflow: hidden; border: 1px solid #2a2c3c; border-radius: .85rem; background: #141620; }
+.poster { width: 100%; height: 100%; min-height: 14rem; object-fit: cover; background: #222432; }
+.media-content { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; padding: .9rem; }
+.media-title { width: 100%; }
+.media-title > div { display: flex; align-items: center; gap: .5rem; }
+.type-chip { padding: .23rem .45rem; border-radius: 99px; color: #cec5ff; background: #302a4c; font-size: .65rem; }
+.year { color: #9294a8; font-size: .75rem; }
+.media-title h3 { overflow: hidden; margin-top: .5rem; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem; }
+.synopsis { display: -webkit-box; overflow: hidden; margin: .5rem 0; color: #a6a7b8; font-size: .75rem; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+dl { display: grid; width: 100%; gap: .3rem; margin: 0 0 .75rem; }
+dl div { display: grid; grid-template-columns: 4.4rem minmax(0, 1fr); gap: .35rem; font-size: .68rem; }
+dt { color: #828498; }
+dd { overflow: hidden; margin: 0; color: #dedee8; text-overflow: ellipsis; white-space: nowrap; }
+.card-actions { margin-top: auto; }
+.icon-button { padding: .42rem .6rem; border: 1px solid #34364a; border-radius: .45rem; color: #d1caff; background: #222432; cursor: pointer; font: inherit; font-size: .72rem; }
+.icon-button.danger { color: #ffb6bd; }
+.icon-button.watch-button { border-color: #51438d; color: #e2dcff; background: #342b59; }
+@media (max-width: 1050px) { .media-grid { grid-template-columns: 1fr; } }
+@media (max-width: 660px) { .page-heading { align-items: flex-start; flex-direction: column; } .media-form { grid-template-columns: 1fr; } .field-wide { grid-column: auto; } .media-card { grid-template-columns: 6.5rem minmax(0, 1fr); } .poster { min-height: 13rem; } }

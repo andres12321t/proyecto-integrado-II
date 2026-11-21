@@ -1,0 +1,67 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">PANEL DE CONTROL</p>
+    <h1>Resumen del catálogo</h1>
+    <p class="muted">Administra las producciones y los catálogos de la plataforma.</p>
+  </div>
+  <a class="button button-primary" routerLink="/medias">＋ Nueva producción</a>
+</section>
+
+@if (loading()) {
+  <div class="notice">Cargando información del catálogo…</div>
+} @else if (error()) {
+  <div class="alert alert-error">{{ error() }} Asegúrate de que la API esté activa.</div>
+} @else {
+  <section class="stats-grid" aria-label="Resumen de registros">
+    <article class="stat-card stat-featured">
+      <span class="stat-icon">▶</span>
+      <span class="stat-label">Producciones</span>
+      <strong>{{ mediaCount() }}</strong>
+      <span class="stat-note">Películas y series</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon">✦</span>
+      <span class="stat-label">Géneros activos</span>
+      <strong>{{ activeGenres() }}</strong>
+      <a routerLink="/catalogo/generos">Gestionar géneros →</a>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon">◎</span>
+      <span class="stat-label">Directores activos</span>
+      <strong>{{ activeDirectors() }}</strong>
+      <a routerLink="/catalogo/directores">Gestionar directores →</a>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon">▣</span>
+      <span class="stat-label">Productoras activas</span>
+      <strong>{{ activeStudios() }}</strong>
+      <a routerLink="/catalogo/productoras">Gestionar productoras →</a>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">BIBLIOTECA</p>
+        <h2>Producciones recientes</h2>
+      </div>
+      <a class="text-link" routerLink="/medias">Ver biblioteca →</a>
+    </div>
+    @if (recentMedia().length === 0) {
+      <p class="empty-state">Aún no hay producciones. Agrega la primera al catálogo.</p>
+    } @else {
+      <div class="recent-list">
+        @for (media of recentMedia(); track media.id) {
+          <article class="recent-item">
+            <img [src]="media.imagen_portada" [alt]="'Portada de ' + media.titulo" />
+            <div class="recent-copy">
+              <strong>{{ media.titulo }}</strong>
+              <span>{{ media.tipo }} · {{ media.ano_estreno }} · {{ media.genero }}</span>
+            </div>
+            <span class="recent-serial">{{ media.serial }}</span>
+          </article>
+        }
+      </div>
+    }
+  </section>
+}
